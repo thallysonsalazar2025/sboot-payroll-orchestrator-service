@@ -1,15 +1,20 @@
 package br.com.payroll.orchestrator.domain.model;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.YearMonth;
-import java.util.List;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record PdfGenerationMessage(
+public record PayrollPayloadMessage(
         String messageId,
         String correlationId,
         Instant createdAt,
+        String companyId,
+        String companyName,
+        String registrationNumber,
+        String businessUnit,
+        String payrollCalendar,
         String employeeId,
         String employeeName,
         String documentNumber,
@@ -17,10 +22,9 @@ public record PdfGenerationMessage(
         String costCenter,
         String email,
         YearMonth payrollPeriod,
-        java.math.BigDecimal grossAmount,
-        java.math.BigDecimal benefitDiscount,
-        java.math.BigDecimal taxAmount,
-        java.math.BigDecimal netAmount,
-        List<String> activeBenefits,
+        BigDecimal grossAmount,
+        BigDecimal taxRate,
+        BigDecimal taxAmount,
+        BigDecimal netAmount,
         String requestedBy) {
 }

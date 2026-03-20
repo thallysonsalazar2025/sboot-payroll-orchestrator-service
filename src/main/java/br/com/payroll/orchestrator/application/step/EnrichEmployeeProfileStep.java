@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(10)
+@Order(20)
 @RequiredArgsConstructor
 public class EnrichEmployeeProfileStep implements FlowStep {
 

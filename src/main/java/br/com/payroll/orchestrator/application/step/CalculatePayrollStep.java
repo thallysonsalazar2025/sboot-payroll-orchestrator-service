@@ -22,6 +22,6 @@ public class CalculatePayrollStep implements FlowStep {
 
     @Override
     public String name() {
-        return "calculate-payroll";
+        return "calculate-payroll-taxes";
     }
 }

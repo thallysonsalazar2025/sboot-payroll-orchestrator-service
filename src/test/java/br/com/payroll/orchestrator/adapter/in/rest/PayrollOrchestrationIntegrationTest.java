@@ -1,17 +1,17 @@
 package br.com.payroll.orchestrator.adapter.in.rest;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import br.com.payroll.orchestrator.domain.model.PdfGenerationMessage;
+import br.com.payroll.orchestrator.domain.model.PayrollPayloadMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -51,10 +51,10 @@ class PayrollOrchestrationIntegrationTest {
                                 }
                                 """))
                 .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.status").value("PUBLISHED"))
+                .andExpect(jsonPath("$.status").value("ORCHESTRATED"))
                 .andExpect(jsonPath("$.reusedResult").value(false));
 
-        verify(rabbitTemplate, times(1)).convertAndSend(eq("payroll.exchange"), eq("payroll.pdf.generate"), any(PdfGenerationMessage.class));
+        verify(rabbitTemplate, times(1)).convertAndSend(eq("payroll.exchange"), eq("payroll.orchestrated"), any(PayrollPayloadMessage.class));
     }
 
     @Test
@@ -82,24 +82,24 @@ class PayrollOrchestrationIntegrationTest {
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.reusedResult").value(true));
 
-        verify(rabbitTemplate, times(1)).convertAndSend(eq("payroll.exchange"), eq("payroll.pdf.generate"), any(PdfGenerationMessage.class));
+        verify(rabbitTemplate, times(1)).convertAndSend(eq("payroll.exchange"), eq("payroll.orchestrated"), any(PayrollPayloadMessage.class));
     }
 
     @Test
-    void shouldApplyBenefitFallbackAndStillPublish() throws Exception {
+    void shouldUseAlternativeCompanyTaxRateAndStillPublish() throws Exception {
         mockMvc.perform(post("/api/v1/payroll-orchestrations")
-                        .header("X-Idempotency-Key", "idem-fallback")
+                        .header("X-Idempotency-Key", "idem-company-tax")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "employeeId": "benefits-down",
+                                  "employeeId": "emp-003",
                                   "payrollPeriod": "2026-03",
                                   "baseSalary": 6200.00,
                                   "requestedBy": "payroll-bff"
                                 }
                                 """))
                 .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.status").value("PUBLISHED"))
+                .andExpect(jsonPath("$.status").value("ORCHESTRATED"))
                 .andExpect(jsonPath("$.reusedResult").value(false));
     }
 
@@ -122,7 +122,7 @@ class PayrollOrchestrationIntegrationTest {
     @Test
     void shouldReturnServiceUnavailableWhenPublisherFails() throws Exception {
         doThrow(new RuntimeException("broker unavailable"))
-                .when(rabbitTemplate).convertAndSend(eq("payroll.exchange"), eq("payroll.pdf.generate"), any(PdfGenerationMessage.class));
+                .when(rabbitTemplate).convertAndSend(eq("payroll.exchange"), eq("payroll.orchestrated"), any(PayrollPayloadMessage.class));
 
         mockMvc.perform(post("/api/v1/payroll-orchestrations")
                         .header("X-Idempotency-Key", "idem-publisher-failure")
@@ -136,7 +136,7 @@ class PayrollOrchestrationIntegrationTest {
                                 }
                                 """))
                 .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.details[0]", containsString("Falha ao publicar payload no broker RabbitMQ")));
+                .andExpect(jsonPath("$.details[0]", containsString("Falha ao publicar payload consolidado no broker RabbitMQ")));
     }
 
     @Test

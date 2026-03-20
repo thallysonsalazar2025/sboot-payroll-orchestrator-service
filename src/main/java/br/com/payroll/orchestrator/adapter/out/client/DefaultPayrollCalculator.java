@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultPayrollCalculator implements PayrollCalculator {
 
-    private static final BigDecimal TAX_RATE = new BigDecimal("0.12");
-
     @Override
     @Retry(name = "payrollCalculator")
     @CircuitBreaker(name = "payrollCalculator")
@@ -28,16 +26,21 @@ public class DefaultPayrollCalculator implements PayrollCalculator {
             throw new BusinessException("O salário base deve ser maior que zero");
         }
 
-        BigDecimal benefitDiscount = context.benefitSummary().monthlyDiscount();
-        BigDecimal taxAmount = baseSalary.multiply(TAX_RATE).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal netAmount = baseSalary.subtract(benefitDiscount).subtract(taxAmount).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal taxRate = context.companyProfile().defaultTaxRate();
+        if (taxRate == null || taxRate.signum() < 0) {
+            throw new BusinessException("A alíquota tributária da empresa deve ser válida");
+        }
 
-        log.info("Cálculo concluído. employeeId={}, gross={}, discounts={}, taxes={}, net={}",
-                context.request().employeeId(), baseSalary, benefitDiscount, taxAmount, netAmount);
+        BigDecimal grossAmount = baseSalary.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal taxAmount = grossAmount.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal netAmount = grossAmount.subtract(taxAmount).setScale(2, RoundingMode.HALF_UP);
+
+        log.info("Cálculo tributário concluído. employeeId={}, companyId={}, gross={}, taxRate={}, taxes={}, net={}",
+                context.request().employeeId(), context.companyProfile().companyId(), grossAmount, taxRate, taxAmount, netAmount);
 
         return PayrollCalculationResult.builder()
-                .grossAmount(baseSalary.setScale(2, RoundingMode.HALF_UP))
-                .benefitDiscount(benefitDiscount.setScale(2, RoundingMode.HALF_UP))
+                .grossAmount(grossAmount)
+                .taxRate(taxRate)
                 .taxAmount(taxAmount)
                 .netAmount(netAmount)
                 .build();
