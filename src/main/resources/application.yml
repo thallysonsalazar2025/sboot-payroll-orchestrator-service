@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: sboot-payroll-orchestrator-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        payroll.orchestration.duration: true
+      slo:
+        http.server.requests: 100ms,250ms,500ms,1s,2s
+        payroll.orchestration.duration: 100ms,300ms,500ms,1s,3s
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+resilience4j:
+  retry:
+    instances:
+      employeeProfileProvider:
+        max-attempts: 3
+        wait-duration: 200ms
+      benefitProvider:
+        max-attempts: 2
+        wait-duration: 150ms
+      payrollCalculator:
+        max-attempts: 2
+        wait-duration: 100ms
+      pdfMessagePublisher:
+        max-attempts: 3
+        wait-duration: 250ms
+  circuitbreaker:
+    instances:
+      employeeProfileProvider:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+      benefitProvider:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+      payrollCalculator:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+      pdfMessagePublisher:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+  bulkhead:
+    instances:
+      employeeProfileProvider:
+        max-concurrent-calls: 20
+      benefitProvider:
+        max-concurrent-calls: 20
+      payrollCalculator:
+        max-concurrent-calls: 30
+      pdfMessagePublisher:
+        max-concurrent-calls: 50
+app:
+  messaging:
+    exchange: payroll.exchange
+    routing-key: payroll.pdf.generate
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
