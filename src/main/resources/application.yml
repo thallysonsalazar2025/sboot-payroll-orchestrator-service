@@ -36,6 +36,9 @@ management:
 resilience4j:
   retry:
     instances:
+      timeTrackingProvider:
+        max-attempts: 3
+        wait-duration: 200ms
       companyProfileProvider:
         max-attempts: 3
         wait-duration: 200ms
@@ -50,6 +53,10 @@ resilience4j:
         wait-duration: 250ms
   circuitbreaker:
     instances:
+      timeTrackingProvider:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
       companyProfileProvider:
         sliding-window-size: 10
         minimum-number-of-calls: 5
@@ -68,6 +75,8 @@ resilience4j:
         failure-rate-threshold: 50
   bulkhead:
     instances:
+      timeTrackingProvider:
+        max-concurrent-calls: 20
       companyProfileProvider:
         max-concurrent-calls: 20
       employeeProfileProvider:

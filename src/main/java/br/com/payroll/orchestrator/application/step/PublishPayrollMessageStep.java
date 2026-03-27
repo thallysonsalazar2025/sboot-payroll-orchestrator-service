@@ -10,7 +10,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(50)
+@Order(60)
 @RequiredArgsConstructor
 public class PublishPayrollMessageStep implements FlowStep {
 

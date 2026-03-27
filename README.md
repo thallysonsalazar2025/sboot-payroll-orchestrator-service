@@ -1,6 +1,6 @@
 # sboot-payroll-orchestrator-service
 
-Serviço Spring Boot 3 / Java 21 responsável por orquestrar a consolidação entre os componentes de dados da empresa, dados do empregado e cálculo da folha, publicando o payload final no RabbitMQ para os consumidores downstream.
+Serviço Spring Boot 3 / Java 21 responsável por orquestrar a consolidação entre os componentes de ponto eletrônico, dados da empresa, dados do empregado e cálculo da folha, publicando o payload final no RabbitMQ para os consumidores downstream.
 
 ## Arquitetura
 
@@ -13,10 +13,11 @@ Serviço Spring Boot 3 / Java 21 responsável por orquestrar a consolidação en
 
 ## Fluxo orquestrado
 
-1. Consulta dados da empresa no componente `sboot-data-company-service`.
-2. Consulta dados do empregado no componente `sboot-data-employe-service`.
-3. Solicita o cálculo tributário ao componente `sboot-payroll-calculation-service`.
-4. Consolida o payload final e publica o evento para consumo assíncrono.
+1. Consulta apontamentos no `sboot-time-tracking-integration-service` (ponto eletrônico externo, ex.: Secullum).
+2. Consulta dados da empresa no `sboot-data-company-service`.
+3. Consulta dados do empregado no `sboot-data-employe-service`.
+4. Solicita o cálculo tributário ao `sboot-payroll-calculation-service`, usando também os dados de ponto.
+5. Consolida o payload final e publica o evento para consumo assíncrono.
 
 ## Principais endpoints
 

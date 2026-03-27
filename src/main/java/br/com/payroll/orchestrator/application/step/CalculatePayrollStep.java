@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(30)
+@Order(40)
 @RequiredArgsConstructor
 public class CalculatePayrollStep implements FlowStep {
 

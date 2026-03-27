@@ -4,13 +4,13 @@ info:
   version: 1.0.0
   description: >-
     API responsável por receber requisições do BFF, consolidar dados da empresa,
-    dados do empregado e cálculo tributário da folha, publicando o payload final.
+    dados do empregado e cálculo tributário da folha com impacto de apontamentos de ponto eletrônico, publicando o payload final.
 servers:
   - url: http://localhost:8080
 paths:
   /api/v1/payroll-orchestrations:
     post:
-      summary: Orquestra os componentes de empresa, empregado e cálculo da folha
+      summary: Orquestra ponto eletrônico, empresa, empregado e cálculo da folha
       operationId: orchestratePayroll
       tags:
         - Payroll Orchestration

@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(40)
+@Order(50)
 public class AssemblePayrollPayloadStep implements FlowStep {
 
     @Override
@@ -29,7 +29,13 @@ public class AssemblePayrollPayloadStep implements FlowStep {
                 .costCenter(context.employeeProfile().costCenter())
                 .email(context.employeeProfile().email())
                 .payrollPeriod(context.request().payrollPeriod())
+                .workedHours(context.timeTrackingSummary().workedHours())
+                .overtimeHours(context.timeTrackingSummary().overtimeHours())
+                .absenceHours(context.timeTrackingSummary().absenceHours())
                 .grossAmount(context.calculationResult().grossAmount())
+                .overtimeAmount(context.calculationResult().overtimeAmount())
+                .absenceDiscount(context.calculationResult().absenceDiscount())
+                .taxableAmount(context.calculationResult().taxableAmount())
                 .taxRate(context.calculationResult().taxRate())
                 .taxAmount(context.calculationResult().taxAmount())
                 .netAmount(context.calculationResult().netAmount())
