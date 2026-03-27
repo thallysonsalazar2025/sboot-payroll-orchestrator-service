@@ -31,13 +31,13 @@ public class InMemoryEmployeeProfileProvider implements EmployeeProfileProvider 
                     .costCenter("TEC-010")
                     .email("carlos.lima@empresa.com")
                     .build(),
-            "benefits-down", EmployeeProfile.builder()
-                    .employeeId("benefits-down")
-                    .employeeName("Maria Fallback")
+            "emp-003", EmployeeProfile.builder()
+                    .employeeId("emp-003")
+                    .employeeName("Maria Oliveira")
                     .documentNumber("11122233344")
                     .department("Operações")
                     .costCenter("OPS-008")
-                    .email("maria.fallback@empresa.com")
+                    .email("maria.oliveira@empresa.com")
                     .build());
 
     @Override

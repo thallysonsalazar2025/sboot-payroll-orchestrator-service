@@ -36,25 +36,32 @@ management:
 resilience4j:
   retry:
     instances:
+      timeTrackingProvider:
+        max-attempts: 3
+        wait-duration: 200ms
+      companyProfileProvider:
+        max-attempts: 3
+        wait-duration: 200ms
       employeeProfileProvider:
         max-attempts: 3
         wait-duration: 200ms
-      benefitProvider:
-        max-attempts: 2
-        wait-duration: 150ms
       payrollCalculator:
         max-attempts: 2
         wait-duration: 100ms
-      pdfMessagePublisher:
+      payrollMessagePublisher:
         max-attempts: 3
         wait-duration: 250ms
   circuitbreaker:
     instances:
-      employeeProfileProvider:
+      timeTrackingProvider:
         sliding-window-size: 10
         minimum-number-of-calls: 5
         failure-rate-threshold: 50
-      benefitProvider:
+      companyProfileProvider:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+      employeeProfileProvider:
         sliding-window-size: 10
         minimum-number-of-calls: 5
         failure-rate-threshold: 50
@@ -62,24 +69,26 @@ resilience4j:
         sliding-window-size: 10
         minimum-number-of-calls: 5
         failure-rate-threshold: 50
-      pdfMessagePublisher:
+      payrollMessagePublisher:
         sliding-window-size: 10
         minimum-number-of-calls: 5
         failure-rate-threshold: 50
   bulkhead:
     instances:
-      employeeProfileProvider:
+      timeTrackingProvider:
         max-concurrent-calls: 20
-      benefitProvider:
+      companyProfileProvider:
+        max-concurrent-calls: 20
+      employeeProfileProvider:
         max-concurrent-calls: 20
       payrollCalculator:
         max-concurrent-calls: 30
-      pdfMessagePublisher:
+      payrollMessagePublisher:
         max-concurrent-calls: 50
 app:
   messaging:
     exchange: payroll.exchange
-    routing-key: payroll.pdf.generate
+    routing-key: payroll.orchestrated
 springdoc:
   api-docs:
     path: /api-docs

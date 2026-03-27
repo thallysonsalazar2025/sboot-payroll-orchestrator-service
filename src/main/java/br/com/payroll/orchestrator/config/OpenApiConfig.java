@@ -15,7 +15,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Payroll Orchestrator Service")
-                        .description("Serviço responsável por orquestrar enriquecimento, cálculo e publicação para geração de PDF de folha.")
+                        .description("Serviço responsável por orquestrar dados de ponto eletrônico, da empresa, do empregado e do cálculo da folha, publicando o payload consolidado.")
                         .version("v1")
                         .contact(new Contact().name("Payroll Platform Team").email("payroll-platform@empresa.com"))
                         .license(new License().name("Apache 2.0")));

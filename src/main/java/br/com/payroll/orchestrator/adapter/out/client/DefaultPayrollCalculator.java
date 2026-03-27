@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultPayrollCalculator implements PayrollCalculator {
 
-    private static final BigDecimal TAX_RATE = new BigDecimal("0.12");
-
     @Override
     @Retry(name = "payrollCalculator")
     @CircuitBreaker(name = "payrollCalculator")
@@ -28,16 +26,43 @@ public class DefaultPayrollCalculator implements PayrollCalculator {
             throw new BusinessException("O salário base deve ser maior que zero");
         }
 
-        BigDecimal benefitDiscount = context.benefitSummary().monthlyDiscount();
-        BigDecimal taxAmount = baseSalary.multiply(TAX_RATE).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal netAmount = baseSalary.subtract(benefitDiscount).subtract(taxAmount).setScale(2, RoundingMode.HALF_UP);
+        if (context.timeTrackingSummary() == null) {
+            throw new BusinessException("Resumo de ponto é obrigatório para cálculo da folha");
+        }
 
-        log.info("Cálculo concluído. employeeId={}, gross={}, discounts={}, taxes={}, net={}",
-                context.request().employeeId(), baseSalary, benefitDiscount, taxAmount, netAmount);
+        BigDecimal taxRate = context.companyProfile().defaultTaxRate();
+        if (taxRate == null || taxRate.signum() < 0) {
+            throw new BusinessException("A alíquota tributária da empresa deve ser válida");
+        }
+
+        BigDecimal grossAmount = baseSalary.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal overtimeAmount = context.timeTrackingSummary().overtimeHours()
+                .multiply(context.timeTrackingSummary().overtimeHourlyRate())
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal absenceDiscount = context.timeTrackingSummary().absenceHours()
+                .multiply(context.timeTrackingSummary().absenceHourlyRate())
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal taxableAmount = grossAmount.add(overtimeAmount).subtract(absenceDiscount).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal taxAmount = taxableAmount.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal netAmount = taxableAmount.subtract(taxAmount).setScale(2, RoundingMode.HALF_UP);
+
+        log.info("Cálculo tributário concluído. employeeId={}, companyId={}, gross={}, overtime={}, absences={}, taxable={}, taxRate={}, taxes={}, net={}",
+                context.request().employeeId(),
+                context.companyProfile().companyId(),
+                grossAmount,
+                overtimeAmount,
+                absenceDiscount,
+                taxableAmount,
+                taxRate,
+                taxAmount,
+                netAmount);
 
         return PayrollCalculationResult.builder()
-                .grossAmount(baseSalary.setScale(2, RoundingMode.HALF_UP))
-                .benefitDiscount(benefitDiscount.setScale(2, RoundingMode.HALF_UP))
+                .grossAmount(grossAmount)
+                .overtimeAmount(overtimeAmount)
+                .absenceDiscount(absenceDiscount)
+                .taxableAmount(taxableAmount)
+                .taxRate(taxRate)
                 .taxAmount(taxAmount)
                 .netAmount(netAmount)
                 .build();

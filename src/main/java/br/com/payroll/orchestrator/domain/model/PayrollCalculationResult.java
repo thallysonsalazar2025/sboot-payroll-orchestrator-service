@@ -6,7 +6,10 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 public record PayrollCalculationResult(
         BigDecimal grossAmount,
-        BigDecimal benefitDiscount,
+        BigDecimal overtimeAmount,
+        BigDecimal absenceDiscount,
+        BigDecimal taxableAmount,
+        BigDecimal taxRate,
         BigDecimal taxAmount,
         BigDecimal netAmount) {
 }

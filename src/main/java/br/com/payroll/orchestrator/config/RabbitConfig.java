@@ -17,15 +17,15 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue payrollPdfQueue() {
-        return new Queue("payroll.pdf.generate.queue", true);
+    public Queue payrollOrchestratedQueue() {
+        return new Queue("payroll.orchestrated.queue", true);
     }
 
     @Bean
-    public Binding payrollPdfBinding(DirectExchange payrollExchange, Queue payrollPdfQueue) {
-        return BindingBuilder.bind(payrollPdfQueue)
+    public Binding payrollOrchestratedBinding(DirectExchange payrollExchange, Queue payrollOrchestratedQueue) {
+        return BindingBuilder.bind(payrollOrchestratedQueue)
                 .to(payrollExchange)
-                .with("payroll.pdf.generate");
+                .with("payroll.orchestrated");
     }
 
     @Bean

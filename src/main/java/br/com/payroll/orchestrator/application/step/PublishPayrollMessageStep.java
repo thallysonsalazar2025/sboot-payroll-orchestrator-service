@@ -2,7 +2,7 @@ package br.com.payroll.orchestrator.application.step;
 
 import br.com.payroll.orchestrator.domain.model.OrchestrationResult;
 import br.com.payroll.orchestrator.domain.model.ProcessingContext;
-import br.com.payroll.orchestrator.domain.port.PdfMessagePublisher;
+import br.com.payroll.orchestrator.domain.port.PayrollMessagePublisher;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -10,21 +10,21 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(50)
+@Order(60)
 @RequiredArgsConstructor
-public class PublishPdfMessageStep implements FlowStep {
+public class PublishPayrollMessageStep implements FlowStep {
 
-    private final PdfMessagePublisher pdfMessagePublisher;
+    private final PayrollMessagePublisher payrollMessagePublisher;
 
     @Override
     public ProcessingContext execute(ProcessingContext context) {
-        pdfMessagePublisher.publish(context.pdfGenerationMessage());
+        payrollMessagePublisher.publish(context.payrollPayloadMessage());
 
         OrchestrationResult result = OrchestrationResult.builder()
                 .orchestrationId(UUID.randomUUID().toString())
                 .correlationId(context.request().correlationId())
-                .messageId(context.pdfGenerationMessage().messageId())
-                .status("PUBLISHED")
+                .messageId(context.payrollPayloadMessage().messageId())
+                .status("ORCHESTRATED")
                 .processedAt(Instant.now())
                 .reusedResult(false)
                 .build();
@@ -34,6 +34,6 @@ public class PublishPdfMessageStep implements FlowStep {
 
     @Override
     public String name() {
-        return "publish-pdf-message";
+        return "publish-payroll-message";
     }
 }

@@ -6,9 +6,10 @@ import lombok.Builder;
 public record ProcessingContext(
         String idempotencyKey,
         PayrollRequest request,
+        TimeTrackingSummary timeTrackingSummary,
+        CompanyProfile companyProfile,
         EmployeeProfile employeeProfile,
-        BenefitSummary benefitSummary,
         PayrollCalculationResult calculationResult,
-        PdfGenerationMessage pdfGenerationMessage,
+        PayrollPayloadMessage payrollPayloadMessage,
         OrchestrationResult orchestrationResult) {
 }

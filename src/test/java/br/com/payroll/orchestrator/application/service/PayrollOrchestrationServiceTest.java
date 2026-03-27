@@ -48,7 +48,7 @@ class PayrollOrchestrationServiceTest {
                             .orchestrationId("orch-1")
                             .correlationId(context.request().correlationId())
                             .messageId("msg-1")
-                            .status("PUBLISHED")
+                            .status("ORCHESTRATED")
                             .processedAt(Instant.now())
                             .reusedResult(false)
                             .build())
@@ -59,7 +59,7 @@ class PayrollOrchestrationServiceTest {
 
         OrchestrationResult result = service.orchestrate(request, "idem-1");
 
-        assertThat(result.status()).isEqualTo("PUBLISHED");
+        assertThat(result.status()).isEqualTo("ORCHESTRATED");
         assertThat(result.messageId()).isEqualTo("msg-1");
         verify(step, times(1)).execute(Mockito.any());
     }
@@ -77,7 +77,7 @@ class PayrollOrchestrationServiceTest {
                 .orchestrationId("orch-1")
                 .correlationId("corr-1")
                 .messageId("msg-1")
-                .status("PUBLISHED")
+                .status("ORCHESTRATED")
                 .processedAt(Instant.now())
                 .reusedResult(true)
                 .build();
