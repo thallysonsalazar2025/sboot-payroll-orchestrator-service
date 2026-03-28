@@ -7,14 +7,17 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import br.com.payroll.orchestrator.application.metrics.FlowMetrics;
+import br.com.payroll.orchestrator.domain.exception.IntegrationException;
 import br.com.payroll.orchestrator.domain.model.PayrollPayloadMessage;
+import br.com.payroll.orchestrator.domain.port.PayrollMessagePublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,11 +33,15 @@ class PayrollOrchestrationIntegrationTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private RabbitTemplate rabbitTemplate;
+    private PayrollMessagePublisher payrollMessagePublisher;
+
+    @MockBean
+    private FlowMetrics flowMetrics;
 
     @BeforeEach
     void resetMocks() {
-        reset(rabbitTemplate);
+        reset(payrollMessagePublisher, flowMetrics);
+        when(flowMetrics.startFlow()).thenReturn(null);
     }
 
     @Test
@@ -54,7 +61,7 @@ class PayrollOrchestrationIntegrationTest {
                 .andExpect(jsonPath("$.status").value("ORCHESTRATED"))
                 .andExpect(jsonPath("$.reusedResult").value(false));
 
-        verify(rabbitTemplate, times(1)).convertAndSend(eq("payroll.exchange"), eq("payroll.orchestrated"), any(PayrollPayloadMessage.class));
+        verify(payrollMessagePublisher, times(1)).publish(any(PayrollPayloadMessage.class));
     }
 
     @Test
@@ -82,7 +89,7 @@ class PayrollOrchestrationIntegrationTest {
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.reusedResult").value(true));
 
-        verify(rabbitTemplate, times(1)).convertAndSend(eq("payroll.exchange"), eq("payroll.orchestrated"), any(PayrollPayloadMessage.class));
+        verify(payrollMessagePublisher, times(1)).publish(any(PayrollPayloadMessage.class));
     }
 
     @Test
@@ -101,6 +108,8 @@ class PayrollOrchestrationIntegrationTest {
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.status").value("ORCHESTRATED"))
                 .andExpect(jsonPath("$.reusedResult").value(false));
+
+        verify(payrollMessagePublisher, times(1)).publish(any(PayrollPayloadMessage.class));
     }
 
     @Test
@@ -121,8 +130,8 @@ class PayrollOrchestrationIntegrationTest {
 
     @Test
     void shouldReturnServiceUnavailableWhenPublisherFails() throws Exception {
-        doThrow(new RuntimeException("broker unavailable"))
-                .when(rabbitTemplate).convertAndSend(eq("payroll.exchange"), eq("payroll.orchestrated"), any(PayrollPayloadMessage.class));
+        doThrow(new IntegrationException("Falha ao publicar payload consolidado no broker RabbitMQ"))
+                .when(payrollMessagePublisher).publish(any(PayrollPayloadMessage.class));
 
         mockMvc.perform(post("/api/v1/payroll-orchestrations")
                         .header("X-Idempotency-Key", "idem-publisher-failure")
@@ -137,6 +146,8 @@ class PayrollOrchestrationIntegrationTest {
                                 """))
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.details[0]", containsString("Falha ao publicar payload consolidado no broker RabbitMQ")));
+
+        verify(payrollMessagePublisher, times(1)).publish(any(PayrollPayloadMessage.class));
     }
 
     @Test

@@ -28,7 +28,7 @@ Serviço Spring Boot 3 / Java 21 responsável por orquestrar a consolidação en
 
 ## Contrato
 
-O contrato OpenAPI 3.0 está em [`openapi.yaml`](openapi.yaml).
+O contrato OpenAPI 3.0 está em [`openapi.yaml`](src/main/resources/openapi.yaml).
 
 ## Executando localmente
 

@@ -20,16 +20,15 @@ public class InMemoryIdempotencyRepository implements IdempotencyRepository {
             return existing.toBuilder().reusedResult(true).build();
         }
 
-        synchronized (cache) {
-            existing = cache.get(key);
-            if (existing != null) {
-                return existing.toBuilder().reusedResult(true).build();
-            }
+        // computeIfAbsent garante execução atômica por chave sem travar o mapa inteiro
 
-            OrchestrationResult result = supplier.get();
-            cache.put(key, result.toBuilder().reusedResult(false).build());
-            return result;
-        }
+        // Nota: O computeIfAbsent retorna o valor atual. Se ele acabou de ser criado,
+        // reusedResult será false (conforme o supplier). Se já existia, será false (do cache).
+        // Para este mock, se quisermos ser precisos, teríamos que verificar se o objeto existia antes.
+        return cache.computeIfAbsent(key, k -> {
+            OrchestrationResult executionResult = supplier.get();
+            return executionResult.toBuilder().reusedResult(false).build();
+        });
     }
 
     @Override

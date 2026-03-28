@@ -1,0 +1,2 @@
+br\com\payroll\orchestrator\adapter\in\rest\PayrollOrchestrationIntegrationTest.class
+br\com\payroll\orchestrator\application\service\PayrollOrchestrationServiceTest.class
