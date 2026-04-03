@@ -1,2 +1,6 @@
+br\com\payroll\orchestrator\adapter\in\rest\PayrollOrchestrationControllerTest.class
 br\com\payroll\orchestrator\adapter\in\rest\PayrollOrchestrationIntegrationTest.class
+br\com\payroll\orchestrator\adapter\in\rest\mapper\PayrollRestMapperTest.class
+br\com\payroll\orchestrator\application\engine\PayrollFlowEngineTest.class
+br\com\payroll\orchestrator\application\executor\IdempotentFlowExecutorTest.class
 br\com\payroll\orchestrator\application\service\PayrollOrchestrationServiceTest.class

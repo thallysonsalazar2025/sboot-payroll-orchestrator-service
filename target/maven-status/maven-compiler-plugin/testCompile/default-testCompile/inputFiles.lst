@@ -1,2 +1,6 @@
+C:\Workspace\sboot-payroll-orchestrator-service\src\test\java\br\com\payroll\orchestrator\adapter\in\rest\mapper\PayrollRestMapperTest.java
+C:\Workspace\sboot-payroll-orchestrator-service\src\test\java\br\com\payroll\orchestrator\adapter\in\rest\PayrollOrchestrationControllerTest.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\test\java\br\com\payroll\orchestrator\adapter\in\rest\PayrollOrchestrationIntegrationTest.java
+C:\Workspace\sboot-payroll-orchestrator-service\src\test\java\br\com\payroll\orchestrator\application\engine\PayrollFlowEngineTest.java
+C:\Workspace\sboot-payroll-orchestrator-service\src\test\java\br\com\payroll\orchestrator\application\executor\IdempotentFlowExecutorTest.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\test\java\br\com\payroll\orchestrator\application\service\PayrollOrchestrationServiceTest.java
