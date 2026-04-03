@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import br.com.payroll.orchestrator.application.executor.IdempotentFlowExecutor;
 import br.com.payroll.orchestrator.domain.model.OrchestrationResult;
 import br.com.payroll.orchestrator.domain.model.PayrollRequest;
+import br.com.payroll.orchestrator.domain.model.TimeTrackingSummary;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.YearMonth;
@@ -32,6 +33,7 @@ class PayrollOrchestrationServiceTest {
                 .payrollPeriod(YearMonth.of(2026, 3))
                 .baseSalary(new BigDecimal("5000.00"))
                 .requestedBy("bff")
+                .timeTrackingSummary(defaultTimeTrackingSummary())
                 .build();
 
         OrchestrationResult expected = OrchestrationResult.builder()
@@ -49,5 +51,15 @@ class PayrollOrchestrationServiceTest {
 
         assertThat(actual).isSameAs(expected);
         verify(executor).execute(request, "idem-001");
+    }
+
+    private TimeTrackingSummary defaultTimeTrackingSummary() {
+        return TimeTrackingSummary.builder()
+                .workedHours(new BigDecimal("168"))
+                .overtimeHours(new BigDecimal("10"))
+                .absenceHours(new BigDecimal("2"))
+                .overtimeHourlyRate(new BigDecimal("45.00"))
+                .absenceHourlyRate(new BigDecimal("38.00"))
+                .build();
     }
 }

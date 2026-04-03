@@ -34,7 +34,14 @@ class PayrollOrchestrationControllerTest {
                     "employeeId": "emp-001",
                     "payrollPeriod": "2023-12",
                     "baseSalary": 5000,
-                    "requestedBy": "user-test"
+                    "requestedBy": "user-test",
+                    "timeTracking": {
+                      "workedHours": 168,
+                      "overtimeHours": 10,
+                      "absenceHours": 2,
+                      "overtimeHourlyRate": 45.00,
+                      "absenceHourlyRate": 38.00
+                    }
                 }
                 """;
 

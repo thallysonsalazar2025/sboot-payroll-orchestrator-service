@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(30)
+@Order(20)
 @RequiredArgsConstructor
 public class EnrichEmployeeProfileStep implements FlowStep {
 
@@ -16,7 +16,7 @@ public class EnrichEmployeeProfileStep implements FlowStep {
 
     @Override
     public ProcessingContext execute(ProcessingContext context) {
-        EmployeeProfile profile = employeeProfileProvider.fetchByEmployeeId(context.request().employeeId());
+        EmployeeProfile profile = employeeProfileProvider.fetchByEmployeeId(context.request(), context.companyProfile());
         return context.toBuilder().employeeProfile(profile).build();
     }
 

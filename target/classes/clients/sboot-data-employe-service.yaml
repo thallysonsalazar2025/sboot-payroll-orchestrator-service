@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  title: Employee Data Service API
+  version: 1.0.0
+  description: API para consulta de dados de colaboradores por tenant.
+servers:
+  - url: /
+paths:
+  /api/v1/employees/search:
+    post:
+      tags:
+        - EmployeeQuery
+      operationId: searchEmployees
+      summary: Pesquisa colaboradores por tenant
+      description: >
+        Retorna os colaboradores de um tenant com base em filtros opcionais.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeSearchRequest'
+      responses:
+        '200':
+          description: Pesquisa realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeSearchResponse'
+        '400':
+          description: Erro de validacao de entrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erro interno no processamento da requisicao
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    EmployeeSearchRequest:
+      type: object
+      required:
+        - tenantId
+        - correlationId
+      properties:
+        tenantId:
+          type: string
+          maxLength: 50
+        correlationId:
+          type: string
+          maxLength: 100
+        employeeId:
+          type: string
+          maxLength: 50
+        registrationNumber:
+          type: string
+          maxLength: 30
+        documentNumber:
+          type: string
+          maxLength: 20
+        status:
+          $ref: '#/components/schemas/EmploymentStatus'
+    EmployeeSearchResponse:
+      type: object
+      properties:
+        tenantId:
+          type: string
+        correlationId:
+          type: string
+        totalRecords:
+          type: integer
+          format: int32
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDataResponse'
+    EmployeeDataResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        registrationNumber:
+          type: string
+        fullName:
+          type: string
+        documentNumber:
+          type: string
+        status:
+          $ref: '#/components/schemas/EmploymentStatus'
+        department:
+          type: string
+        payrollCode:
+          type: string
+    EmploymentStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - LEAVE
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        details:
+          type: array
+          items:
+            type: string

@@ -6,9 +6,12 @@ import br.com.payroll.orchestrator.application.engine.PayrollFlowEngine;
 import br.com.payroll.orchestrator.application.metrics.FlowMetrics;
 import br.com.payroll.orchestrator.domain.model.OrchestrationResult;
 import br.com.payroll.orchestrator.domain.model.PayrollRequest;
+import br.com.payroll.orchestrator.domain.model.TimeTrackingSummary;
 import br.com.payroll.orchestrator.domain.port.IdempotencyRepository;
 import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -26,7 +29,7 @@ class IdempotentFlowExecutorTest {
         when(repo.executeOnce(anyString(), any())).thenReturn(OrchestrationResult.builder().reusedResult(true).build());
 
         IdempotentFlowExecutor executor = new IdempotentFlowExecutor(repo, metrics, engine);
-        executor.execute(PayrollRequest.builder().build(), "key-1");
+        executor.execute(defaultRequest(), "key-1");
 
         verify(metrics).incrementIdempotentHit();
         verify(metrics).stopFlow(eq(sample), eq("reused"));
@@ -44,7 +47,19 @@ class IdempotentFlowExecutorTest {
 
         IdempotentFlowExecutor executor = new IdempotentFlowExecutor(repo, metrics, engine);
 
-        assertThrows(RuntimeException.class, () -> executor.execute(PayrollRequest.builder().build(), "key-err"));
+        assertThrows(RuntimeException.class, () -> executor.execute(defaultRequest(), "key-err"));
         verify(metrics).stopFlow(sample, "error");
+    }
+
+    private PayrollRequest defaultRequest() {
+        return PayrollRequest.builder()
+                .timeTrackingSummary(TimeTrackingSummary.builder()
+                        .workedHours(new BigDecimal("168"))
+                        .overtimeHours(new BigDecimal("10"))
+                        .absenceHours(new BigDecimal("2"))
+                        .overtimeHourlyRate(new BigDecimal("45.00"))
+                        .absenceHourlyRate(new BigDecimal("38.00"))
+                        .build())
+                .build();
     }
 }

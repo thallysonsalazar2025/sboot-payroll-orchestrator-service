@@ -1,5 +1,6 @@
 package br.com.payroll.orchestrator.adapter.in.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,5 +13,6 @@ public record PayrollRequestDto(
         @NotBlank(message = "employeeId é obrigatório") String employeeId,
         @NotBlank(message = "payrollPeriod é obrigatório no formato yyyy-MM") String payrollPeriod,
         @NotNull(message = "baseSalary é obrigatório") @DecimalMin(value = "0.01", message = "baseSalary deve ser maior que zero") BigDecimal baseSalary,
-        @NotBlank(message = "requestedBy é obrigatório") String requestedBy) {
+        @NotBlank(message = "requestedBy é obrigatório") String requestedBy,
+        @Valid @NotNull(message = "timeTracking é obrigatório") TimeTrackingDto timeTracking) {
 }

@@ -9,6 +9,8 @@ import br.com.payroll.orchestrator.application.step.FlowStep;
 import br.com.payroll.orchestrator.domain.model.OrchestrationResult;
 import br.com.payroll.orchestrator.domain.model.PayrollRequest;
 import br.com.payroll.orchestrator.domain.model.ProcessingContext;
+import br.com.payroll.orchestrator.domain.model.TimeTrackingSummary;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import java.time.YearMonth;
 import java.util.List;
@@ -41,6 +43,7 @@ class PayrollFlowEngineTest {
         PayrollRequest request = PayrollRequest.builder()
                 .employeeId("emp-123")
                 .payrollPeriod(YearMonth.now())
+                .timeTrackingSummary(defaultTimeTrackingSummary())
                 .build();
         
         OrchestrationResult result = engine.execute(request, "idem-1");
@@ -53,5 +56,15 @@ class PayrollFlowEngineTest {
         verify(step1, times(1)).execute(any());
         verify(step2, times(1)).execute(any());
         verify(metrics, times(2)).incrementStep(anyString());
+    }
+
+    private TimeTrackingSummary defaultTimeTrackingSummary() {
+        return TimeTrackingSummary.builder()
+                .workedHours(new BigDecimal("168"))
+                .overtimeHours(new BigDecimal("10"))
+                .absenceHours(new BigDecimal("2"))
+                .overtimeHourlyRate(new BigDecimal("45.00"))
+                .absenceHourlyRate(new BigDecimal("38.00"))
+                .build();
     }
 }

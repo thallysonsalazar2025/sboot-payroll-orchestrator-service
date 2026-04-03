@@ -2,8 +2,10 @@ package br.com.payroll.orchestrator.adapter.in.rest.mapper;
 
 import br.com.payroll.orchestrator.adapter.in.dto.OrchestrationResponseDto;
 import br.com.payroll.orchestrator.adapter.in.dto.PayrollRequestDto;
+import br.com.payroll.orchestrator.adapter.in.dto.TimeTrackingDto;
 import br.com.payroll.orchestrator.domain.model.OrchestrationResult;
 import br.com.payroll.orchestrator.domain.model.PayrollRequest;
+import br.com.payroll.orchestrator.domain.model.TimeTrackingSummary;
 import java.time.YearMonth;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ public class PayrollRestMapper {
                 .payrollPeriod(YearMonth.parse(request.payrollPeriod()))
                 .baseSalary(request.baseSalary())
                 .requestedBy(request.requestedBy())
+                .timeTrackingSummary(toTimeTrackingSummary(request.timeTracking()))
                 .build();
     }
 
@@ -43,5 +46,15 @@ public class PayrollRestMapper {
                 employeeId, effectiveKey);
 
         return effectiveKey;
+    }
+
+    private TimeTrackingSummary toTimeTrackingSummary(TimeTrackingDto dto) {
+        return TimeTrackingSummary.builder()
+                .workedHours(dto.workedHours())
+                .overtimeHours(dto.overtimeHours())
+                .absenceHours(dto.absenceHours())
+                .overtimeHourlyRate(dto.overtimeHourlyRate())
+                .absenceHourlyRate(dto.absenceHourlyRate())
+                .build();
     }
 }

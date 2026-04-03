@@ -10,5 +10,6 @@ public record PayrollRequest(
         String employeeId,
         YearMonth payrollPeriod,
         BigDecimal baseSalary,
-        String requestedBy) {
+        String requestedBy,
+        TimeTrackingSummary timeTrackingSummary) {
 }

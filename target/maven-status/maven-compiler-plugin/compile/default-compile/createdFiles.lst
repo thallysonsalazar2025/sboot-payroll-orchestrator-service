@@ -11,7 +11,7 @@ br\com\payroll\orchestrator\domain\model\OrchestrationResult.class
 br\com\payroll\orchestrator\adapter\in\rest\mapper\PayrollRestMapper.class
 br\com\payroll\orchestrator\application\step\PublishPayrollMessageStep.class
 br\com\payroll\orchestrator\domain\model\PayrollCalculationResult.class
-br\com\payroll\orchestrator\adapter\out\client\InMemoryCompanyProfileProvider.class
+br\com\payroll\orchestrator\adapter\in\rest\handler\RabbitMqExceptionHandler.class
 br\com\payroll\orchestrator\domain\exception\BusinessException.class
 br\com\payroll\orchestrator\domain\model\ProcessingContext.class
 br\com\payroll\orchestrator\application\step\EnrichTimeTrackingStep.class
@@ -41,14 +41,14 @@ br\com\payroll\orchestrator\config\OpenApiConfig.class
 br\com\payroll\orchestrator\domain\model\PayrollRequest$PayrollRequestBuilder.class
 br\com\payroll\orchestrator\application\metrics\FlowMetrics.class
 br\com\payroll\orchestrator\adapter\in\dto\PayrollRequestDto.class
+br\com\payroll\orchestrator\adapter\in\dto\TimeTrackingDto$TimeTrackingDtoBuilder.class
 br\com\payroll\orchestrator\adapter\in\dto\ErrorResponseDto.class
 br\com\payroll\orchestrator\domain\port\IdempotencyRepository.class
-br\com\payroll\orchestrator\adapter\out\client\InMemoryTimeTrackingProvider.class
 br\com\payroll\orchestrator\domain\model\PayrollRequest.class
 br\com\payroll\orchestrator\domain\port\TimeTrackingProvider.class
 br\com\payroll\orchestrator\domain\port\PayrollMessagePublisher.class
+br\com\payroll\orchestrator\adapter\in\dto\TimeTrackingDto.class
 br\com\payroll\orchestrator\application\service\PayrollOrchestrationService.class
 br\com\payroll\orchestrator\adapter\out\persistence\InMemoryIdempotencyRepository.class
 br\com\payroll\orchestrator\adapter\in\dto\OrchestrationResponseDto.class
 br\com\payroll\orchestrator\application\step\CalculatePayrollStep.class
-br\com\payroll\orchestrator\adapter\out\client\InMemoryEmployeeProfileProvider.class

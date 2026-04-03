@@ -1,13 +1,12 @@
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\in\dto\ErrorResponseDto.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\in\dto\OrchestrationResponseDto.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\in\dto\PayrollRequestDto.java
+C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\in\dto\TimeTrackingDto.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\in\rest\GlobalExceptionHandler.java
+C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\in\rest\handler\RabbitMqExceptionHandler.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\in\rest\mapper\PayrollRestMapper.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\in\rest\PayrollOrchestrationController.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\out\client\DefaultPayrollCalculator.java
-C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\out\client\InMemoryCompanyProfileProvider.java
-C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\out\client\InMemoryEmployeeProfileProvider.java
-C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\out\client\InMemoryTimeTrackingProvider.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\out\messaging\RabbitMqPayrollMessagePublisher.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\adapter\out\persistence\InMemoryIdempotencyRepository.java
 C:\Workspace\sboot-payroll-orchestrator-service\src\main\java\br\com\payroll\orchestrator\application\engine\PayrollFlowEngine.java

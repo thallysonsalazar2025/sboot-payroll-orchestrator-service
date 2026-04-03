@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(10)
+@Order(30)
 @RequiredArgsConstructor
 public class EnrichTimeTrackingStep implements FlowStep {
 
@@ -16,7 +16,7 @@ public class EnrichTimeTrackingStep implements FlowStep {
 
     @Override
     public ProcessingContext execute(ProcessingContext context) {
-        TimeTrackingSummary summary = timeTrackingProvider.fetchByPayrollRequest(context.request());
+        TimeTrackingSummary summary = timeTrackingProvider.fetchByPayrollRequest(context.request(), context.companyProfile());
         return context.toBuilder().timeTrackingSummary(summary).build();
     }
 

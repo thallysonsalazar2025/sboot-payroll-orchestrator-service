@@ -14,8 +14,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.com.payroll.orchestrator.application.metrics.FlowMetrics;
 import br.com.payroll.orchestrator.domain.exception.IntegrationException;
+import br.com.payroll.orchestrator.domain.exception.NotFoundException;
+import br.com.payroll.orchestrator.domain.model.CompanyProfile;
+import br.com.payroll.orchestrator.domain.model.EmployeeProfile;
 import br.com.payroll.orchestrator.domain.model.PayrollPayloadMessage;
+import br.com.payroll.orchestrator.domain.model.TimeTrackingSummary;
+import br.com.payroll.orchestrator.domain.port.CompanyProfileProvider;
+import br.com.payroll.orchestrator.domain.port.EmployeeProfileProvider;
 import br.com.payroll.orchestrator.domain.port.PayrollMessagePublisher;
+import br.com.payroll.orchestrator.domain.port.TimeTrackingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import java.math.BigDecimal;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,10 +46,22 @@ class PayrollOrchestrationIntegrationTest {
     @MockBean
     private FlowMetrics flowMetrics;
 
+    @MockBean
+    private CompanyProfileProvider companyProfileProvider;
+
+    @MockBean
+    private EmployeeProfileProvider employeeProfileProvider;
+
+    @MockBean
+    private TimeTrackingProvider timeTrackingProvider;
+
     @BeforeEach
     void resetMocks() {
-        reset(payrollMessagePublisher, flowMetrics);
+        reset(payrollMessagePublisher, flowMetrics, companyProfileProvider, employeeProfileProvider, timeTrackingProvider);
         when(flowMetrics.startFlow()).thenReturn(null);
+        when(companyProfileProvider.fetchByEmployeeId(any())).thenReturn(defaultCompanyProfile());
+        when(employeeProfileProvider.fetchByEmployeeId(any(), any())).thenReturn(defaultEmployeeProfile());
+        when(timeTrackingProvider.fetchByPayrollRequest(any(), any())).thenReturn(defaultTimeTrackingSummary());
     }
 
     @Test
@@ -54,7 +74,14 @@ class PayrollOrchestrationIntegrationTest {
                                   "employeeId": "emp-001",
                                   "payrollPeriod": "2026-03",
                                   "baseSalary": 8500.00,
-                                  "requestedBy": "payroll-bff"
+                                  "requestedBy": "payroll-bff",
+                                  "timeTracking": {
+                                    "workedHours": 168,
+                                    "overtimeHours": 10,
+                                    "absenceHours": 2,
+                                    "overtimeHourlyRate": 45.00,
+                                    "absenceHourlyRate": 38.00
+                                  }
                                 }
                                 """))
                 .andExpect(status().isAccepted())
@@ -71,7 +98,14 @@ class PayrollOrchestrationIntegrationTest {
                   "employeeId": "emp-001",
                   "payrollPeriod": "2026-03",
                   "baseSalary": 8500.00,
-                  "requestedBy": "payroll-bff"
+                  "requestedBy": "payroll-bff",
+                  "timeTracking": {
+                    "workedHours": 168,
+                    "overtimeHours": 10,
+                    "absenceHours": 2,
+                    "overtimeHourlyRate": 45.00,
+                    "absenceHourlyRate": 38.00
+                  }
                 }
                 """;
 
@@ -102,7 +136,14 @@ class PayrollOrchestrationIntegrationTest {
                                   "employeeId": "emp-003",
                                   "payrollPeriod": "2026-03",
                                   "baseSalary": 6200.00,
-                                  "requestedBy": "payroll-bff"
+                                  "requestedBy": "payroll-bff",
+                                  "timeTracking": {
+                                    "workedHours": 162,
+                                    "overtimeHours": 6,
+                                    "absenceHours": 5,
+                                    "overtimeHourlyRate": 42.00,
+                                    "absenceHourlyRate": 35.00
+                                  }
                                 }
                                 """))
                 .andExpect(status().isAccepted())
@@ -114,6 +155,9 @@ class PayrollOrchestrationIntegrationTest {
 
     @Test
     void shouldReturnNotFoundWhenEmployeeDoesNotExist() throws Exception {
+        when(employeeProfileProvider.fetchByEmployeeId(any(), any()))
+                .thenThrow(new NotFoundException("Colaborador não encontrado para o identificador informado"));
+
         mockMvc.perform(post("/api/v1/payroll-orchestrations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -121,7 +165,14 @@ class PayrollOrchestrationIntegrationTest {
                                   "employeeId": "unknown",
                                   "payrollPeriod": "2026-03",
                                   "baseSalary": 6200.00,
-                                  "requestedBy": "payroll-bff"
+                                  "requestedBy": "payroll-bff",
+                                  "timeTracking": {
+                                    "workedHours": 160,
+                                    "overtimeHours": 4,
+                                    "absenceHours": 3,
+                                    "overtimeHourlyRate": 40.00,
+                                    "absenceHourlyRate": 35.00
+                                  }
                                 }
                                 """))
                 .andExpect(status().isNotFound())
@@ -141,7 +192,14 @@ class PayrollOrchestrationIntegrationTest {
                                   "employeeId": "emp-002",
                                   "payrollPeriod": "2026-03",
                                   "baseSalary": 7000.00,
-                                  "requestedBy": "payroll-bff"
+                                  "requestedBy": "payroll-bff",
+                                  "timeTracking": {
+                                    "workedHours": 160,
+                                    "overtimeHours": 4,
+                                    "absenceHours": 0,
+                                    "overtimeHourlyRate": 40.00,
+                                    "absenceHourlyRate": 35.00
+                                  }
                                 }
                                 """))
                 .andExpect(status().isServiceUnavailable())
@@ -164,5 +222,37 @@ class PayrollOrchestrationIntegrationTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Validation failed"));
+    }
+
+    private EmployeeProfile defaultEmployeeProfile() {
+        return EmployeeProfile.builder()
+                .employeeId("emp-001")
+                .employeeName("Ana Souza")
+                .documentNumber("12345678900")
+                .department("Financeiro")
+                .costCenter("FIN-001")
+                .email("ana.souza@empresa.com")
+                .build();
+    }
+
+    private CompanyProfile defaultCompanyProfile() {
+        return CompanyProfile.builder()
+                .companyId("COMP-001")
+                .companyName("Acme Indicadores")
+                .registrationNumber("12345678000199")
+                .businessUnit("Unidade Central")
+                .payrollCalendar("MENSAL")
+                .defaultTaxRate(new BigDecimal("0.12"))
+                .build();
+    }
+
+    private TimeTrackingSummary defaultTimeTrackingSummary() {
+        return TimeTrackingSummary.builder()
+                .workedHours(new BigDecimal("168"))
+                .overtimeHours(new BigDecimal("10"))
+                .absenceHours(new BigDecimal("2"))
+                .overtimeHourlyRate(new BigDecimal("45.00"))
+                .absenceHourlyRate(new BigDecimal("38.00"))
+                .build();
     }
 }

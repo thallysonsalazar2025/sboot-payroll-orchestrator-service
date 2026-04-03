@@ -1,0 +1,239 @@
+openapi: 3.0.3
+info:
+  title: Company Registry Service API
+  version: 1.0.0
+  description: API para consulta de dados cadastrais de empresas para fluxo de folha de pagamento.
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/v1/companies/registry:
+    get:
+      tags:
+        - Company Registry
+      summary: Consultar cadastro de empresa
+      operationId: findCompanyRegistry
+      parameters:
+        - name: registrationNumber
+          in: query
+          required: true
+          description: Numero de registro da empresa no pais informado.
+          schema:
+            type: string
+            minLength: 1
+        - name: countryCode
+          in: query
+          required: false
+          description: Codigo do pais no padrao ISO 3166-1 alpha-2. Quando vazio ou ausente, utiliza "1" (Brasil) e resolve para BR.
+          schema:
+            type: string
+            minLength: 1
+            default: "1"
+      responses:
+        "200":
+          description: Empresa encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyRegistryResponse"
+        "400":
+          description: Parametros invalidos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Empresa nao encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    CompanyRegistryResponse:
+      type: object
+      properties:
+        companyId:
+          type: string
+        registrationNumber:
+          type: string
+        countryCode:
+          type: string
+        legalName:
+          type: string
+        tradeName:
+          type: string
+        status:
+          type: string
+        incorporationDate:
+          type: string
+          format: date
+        companyType:
+          type: string
+        primaryEconomicActivity:
+          type: string
+        secondaryEconomicActivities:
+          type: array
+          items:
+            type: string
+        headquarters:
+          $ref: "#/components/schemas/AddressResponse"
+        additionalAddresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/AddressResponse"
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactResponse"
+        payrollSettings:
+          $ref: "#/components/schemas/PayrollSettingsResponse"
+        payrollBankAccount:
+          $ref: "#/components/schemas/BankAccountResponse"
+        taxProfile:
+          $ref: "#/components/schemas/TaxProfileResponse"
+        logo:
+          $ref: "#/components/schemas/LogoMetadataResponse"
+        employerIdentifiers:
+          type: array
+          items:
+            type: string
+        complianceTags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+      required:
+        - companyId
+        - registrationNumber
+        - countryCode
+        - legalName
+        - status
+    AddressResponse:
+      type: object
+      properties:
+        street:
+          type: string
+        number:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        countryCode:
+          type: string
+        addressType:
+          type: string
+    ContactResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        type:
+          type: string
+    PayrollSettingsResponse:
+      type: object
+      properties:
+        defaultCurrency:
+          type: string
+        paymentFrequency:
+          type: string
+        paymentMethod:
+          type: string
+        timezone:
+          type: string
+        workingHoursRegime:
+          type: string
+        collectiveAgreement:
+          type: string
+        vacationPolicy:
+          type: string
+        thirteenthSalaryRule:
+          type: string
+    BankAccountResponse:
+      type: object
+      properties:
+        bankName:
+          type: string
+        branch:
+          type: string
+        accountNumber:
+          type: string
+        pixKey:
+          type: string
+          nullable: true
+        iban:
+          type: string
+          nullable: true
+        swift:
+          type: string
+        accountType:
+          type: string
+    TaxProfileResponse:
+      type: object
+      properties:
+        taxRegime:
+          type: string
+        federalRegistration:
+          type: string
+        stateRegistration:
+          type: string
+          nullable: true
+        municipalRegistration:
+          type: string
+          nullable: true
+        taxIncentives:
+          type: array
+          items:
+            type: string
+        laborBenefitPrograms:
+          type: array
+          items:
+            type: string
+    LogoMetadataResponse:
+      type: object
+      properties:
+        source:
+          type: string
+        uri:
+          type: string
+          format: uri
+        mimeType:
+          type: string
+        checksum:
+          type: string
+        fallbackText:
+          type: string
+        approvedForPayrollDocuments:
+          type: boolean
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
